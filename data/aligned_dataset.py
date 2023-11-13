@@ -35,22 +35,22 @@ class AlignedDataset(BaseDataset):
         self.image_info = collections.defaultdict(dict)
         self.df["CategoryId"] = self.df.ClassId.apply(lambda x: str(x).split("_")[0])
         temp_df = (
-            self.df.groupby("ImageId")["EncodedPixels", "CategoryId"]
+            self.df.groupby("ImageId")[["EncodedPixels", "CategoryId"]]
             .agg(lambda x: list(x))
             .reset_index()
         )
-        size_df = self.df.groupby("ImageId")["Height", "Width"].mean().reset_index()
+        size_df = self.df.groupby("ImageId")[["Height", "Width"]].mean().reset_index()
         temp_df = temp_df.merge(size_df, on="ImageId", how="left")
         for index, row in tqdm(temp_df.iterrows(), total=len(temp_df)):
             image_id = row["ImageId"]
             image_path = os.path.join(self.image_dir, image_id)
             self.image_info[index]["image_id"] = image_id
             self.image_info[index]["image_path"] = image_path
-            self.image_info[index]["width"] = self.width
-            self.image_info[index]["height"] = self.height
+            self.image_info[index]["width"] = int(self.width)
+            self.image_info[index]["height"] = int(self.height)
             self.image_info[index]["labels"] = row["CategoryId"]
-            self.image_info[index]["orig_height"] = row["Height"]
-            self.image_info[index]["orig_width"] = row["Width"]
+            self.image_info[index]["orig_height"] = int(row["Height"])
+            self.image_info[index]["orig_width"] = int(row["Width"])
             self.image_info[index]["annotations"] = row["EncodedPixels"]
 
         self.dataset_size = len(self.image_info)

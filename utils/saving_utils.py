@@ -26,7 +26,8 @@ def load_checkpoint_mgpu(model, checkpoint_path):
         name = k[7:]  # remove `module.`
         new_state_dict[name] = v
 
-    model.load_state_dict(new_state_dict)
+    #model.load_state_dict(new_state_dict)
+    model.load_state_dict(new_state_dict, strict=False)
     print("----checkpoints loaded from path: {}----".format(checkpoint_path))
     return model
 
